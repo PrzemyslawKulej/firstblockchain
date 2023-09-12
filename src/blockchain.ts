@@ -1,11 +1,13 @@
-function Blockchain() {
+import { Block, Transaction, BlockchainType } from './types';
+
+function Blockchain(this: BlockchainType) {
     this.chain = [];
     this.newTransactions = [];
 }
 
 // Method, that creates new block of our blockchain and adds to it
-Blockchain.prototype.createNewBlock = function (nonce: Number, previousBlockHash: String, hash: String) {
-    const newBlock = {
+Blockchain.prototype.createNewBlock = function (this: BlockchainType, nonce: number, previousBlockHash: string, hash: string) {
+    const newBlock: Block = {
         index: this.chain.length + 1,
         timestamp: Date.now(),
         transactions: this.newTransactions,
@@ -18,3 +20,5 @@ Blockchain.prototype.createNewBlock = function (nonce: Number, previousBlockHash
 
     return newBlock;
 }
+
+export { Blockchain };
