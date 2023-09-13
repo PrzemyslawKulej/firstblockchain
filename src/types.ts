@@ -16,6 +16,6 @@ export interface Transaction {
 
 export interface BlockchainType {
     chain: Block[];
-    newTransactions: Transaction[];
+    pendingTransactions: Transaction[];
     createNewBlock( nonce: number, previousBlockHash: string, hash: string): Block;
 }
