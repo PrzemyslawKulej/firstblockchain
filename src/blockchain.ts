@@ -42,3 +42,5 @@ Blockchain.prototype.createNewTransaction = function (amount: number, sender: st
 }
 
 export { Blockchain };
+
+//comma
