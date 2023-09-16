@@ -1,7 +1,7 @@
 import { Blockchain } from './blockchain';
-import {BlockchainType} from "./types";
 
-const bitcoin: BlockchainType = new Blockchain();
+
+const bitcoin: Blockchain = new Blockchain();
 
 bitcoin.createNewBlock(2356, '23QDDADA', '22QAADAD');
 
