@@ -9,7 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "sha256": "^0.2.0",
     "tsc": "^2.0.4",
     "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/sha256": "^0.2.0"
   }
 }

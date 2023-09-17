@@ -1,4 +1,5 @@
 import { Block, Transaction } from './types';
+import sha256 from 'sha256';
 
 class Blockchain {
     chain: Block[];
@@ -43,6 +44,15 @@ class Blockchain {
         this.pendingTransactions.push(newTransaction);
 
         return this.getLastBlock().index + 1;
+
+    }
+
+    //Hashing method
+
+    hashBlock(previousBlockHash: string, currentBlockData: any, nonce: number) {
+        const dataAsSting = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
+        const hash = sha256(dataAsSting);
+        return hash;
 
     }
 
