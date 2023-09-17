@@ -8,6 +8,8 @@ class Blockchain {
     constructor() {
         this.chain = [];
         this.pendingTransactions = [];
+        //Genesis block
+        this.createNewBlock(100, '0', '0');
     }
 
 // Method, that creates new block of our blockchain and adds to it
@@ -49,10 +51,22 @@ class Blockchain {
 
     //Hashing method
 
-    hashBlock(previousBlockHash: string, currentBlockData: any, nonce: number) {
+    hashBlock(previousBlockHash: string, currentBlockData: any, nonce: number): string {
         const dataAsSting = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
         const hash = sha256(dataAsSting);
         return hash;
+
+    }
+    //Proof of work method
+
+    proofOfWork(previousBlockHash: string, currentBlockData: any) {
+        let nonce = 0;
+        let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
+        while (hash.substring(0, 4) !== '0000') {
+            nonce++;
+            hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
+        }
+        return nonce;
 
     }
 
