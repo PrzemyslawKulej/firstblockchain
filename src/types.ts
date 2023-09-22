@@ -14,3 +14,7 @@ export interface Transaction {
     amount: number;
 }
 
+export interface Node {
+    node: string;
+}
+

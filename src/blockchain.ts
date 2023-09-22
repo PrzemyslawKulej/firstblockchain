@@ -1,13 +1,19 @@
 import { Block, Transaction } from './types';
 import sha256 from 'sha256';
+const currentNodeUrl = process.argv[3];
+import * as crypto from "crypto";
 
 class Blockchain {
     chain: Block[];
     pendingTransactions: Transaction[];
+    networkNodes: Node[];
+    currentNodeUrl: string;
 
     constructor() {
         this.chain = [];
         this.pendingTransactions = [];
+        this.networkNodes = [];
+        this.currentNodeUrl = currentNodeUrl;
         //Genesis block
         this.createNewBlock(100, '0', '0');
     }
@@ -67,6 +73,7 @@ class Blockchain {
             hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
         }
         return nonce;
+
 
     }
 
