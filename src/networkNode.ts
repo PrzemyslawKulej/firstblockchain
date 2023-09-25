@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import bodyParser from "body-parser";
 import {Blockchain} from "./blockchain";
 import * as crypto from "crypto";
+import  axios from 'axios';
 
 const app = express();
 const PORT = process.argv[2];
@@ -52,13 +53,31 @@ app.get('/mine', function (req: Request, res: Response) {
 
 //Register a node and broadcast it to the network
 
-app.post('/register-and-broadcast-node', function(req: Request, res: Response) {
+app.post('/register-and-broadcast-node', async (req: Request, res: Response) => {
    const  newNodeUrl = req.body.newNodeUrl;
-   if (bitcoin.networkNodes.indexOf(newNodeUrl) == -1) bitcoin.networkNodes.push(newNodeUrl);
 
-   bitcoin.networkNodes.forEach(networkNodeUrl => {
+   if (bitcoin.networkNodes.indexOf(newNodeUrl) === -1) {
+       bitcoin.networkNodes.push(newNodeUrl);
+   }
 
-   })
+   const regNodesPromises = bitcoin.networkNodes.map(networkNodeUrl => {
+       return axios.post(`${networkNodeUrl} register-node`, {
+           newNodeIrl: networkNodeUrl
+       });
+   });
+
+   try {
+       const results = await Promise.all(regNodesPromises);
+
+       res.json({message: 'Wszystkie węzły zostały zatrejestrowane'});
+   } catch (error) {
+       res.status(500).json({ error: 'Wystąpił błąd podczas rejestrowania węzłów.'});
+   }
+
+
+
+
+
 });
 
 //Register a node with the network
@@ -77,4 +96,4 @@ app.listen(PORT, () => {
     console.log(`Server is live on this port ${PORT}`);
 });
 
-//comma
+//comman
