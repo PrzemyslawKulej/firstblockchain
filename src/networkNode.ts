@@ -61,21 +61,22 @@ app.post('/register-and-broadcast-node', async (req: Request, res: Response) => 
    }
 
    const regNodesPromises = bitcoin.networkNodes.map(networkNodeUrl => {
-       return axios.post(`${networkNodeUrl} register-node`, {
-           newNodeIrl: networkNodeUrl
+       return axios.post(`${networkNodeUrl}/register-node`, {
+           newNodeUrl: networkNodeUrl
        });
    });
 
    try {
        const results = await Promise.all(regNodesPromises);
+       res.json({message: 'All nodes registered'});
+       await axios.post(`${newNodeUrl}/register-nodes-bulk`, {
+           allNetworkNodes: [ ...bitcoin.networkNodes, bitcoin.currentNodeUrl ]
+       });
 
-       res.json({message: 'Wszystkie węzły zostały zatrejestrowane'});
+
    } catch (error) {
-       res.status(500).json({ error: 'Wystąpił błąd podczas rejestrowania węzłów.'});
+       res.status(500).json({ error: 'Error occured during registration.'});
    }
-
-
-
 
 
 });
