@@ -56,8 +56,8 @@ app.get('/mine', function (req: Request, res: Response) {
 app.post('/register-and-broadcast-node', async (req: Request, res: Response) => {
    const  newNodeUrl = req.body.newNodeUrl;
 
-   if (bitcoin.networkNodes.indexOf(newNodeUrl) === -1) {
-       bitcoin.networkNodes.push(newNodeUrl);
+   if (!bitcoin.networkNodes.includes(newNodeUrl))  {
+       bitcoin.networkNodes.push(newNodeUrl)
    }
 
    const regNodesPromises = bitcoin.networkNodes.map(networkNodeUrl => {
@@ -68,7 +68,7 @@ app.post('/register-and-broadcast-node', async (req: Request, res: Response) => 
 
    try {
        const results = await Promise.all(regNodesPromises);
-       res.json({message: 'All nodes registered'});
+       res.json({ message: 'All nodes registered' });
        await axios.post(`${newNodeUrl}/register-nodes-bulk`, {
            allNetworkNodes: [ ...bitcoin.networkNodes, bitcoin.currentNodeUrl ]
        });
@@ -83,6 +83,13 @@ app.post('/register-and-broadcast-node', async (req: Request, res: Response) => 
 
 //Register a node with the network
 app.post('/register-node', function (req: Request, res: Response) {
+    const newNodeUrl = req.body.newNodeUrl;
+    if (!bitcoin.networkNodes.includes(newNodeUrl)  && bitcoin.currentNodeUrl !== newNodeUrl) {
+        bitcoin.networkNodes.push(newNodeUrl);
+    };
+
+    res.json({ message: 'New node registered successfully with node.' });
+
 
 });
 
