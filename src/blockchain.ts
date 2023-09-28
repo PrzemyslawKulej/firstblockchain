@@ -1,4 +1,4 @@
-import { Block, Transaction } from './types';
+import {Block, NodeUrl, Transaction} from './types';
 import sha256 from 'sha256';
 const currentNodeUrl = process.argv[3];
 import * as crypto from "crypto";
@@ -6,7 +6,7 @@ import * as crypto from "crypto";
 class Blockchain {
     chain: Block[];
     pendingTransactions: Transaction[];
-    networkNodes: Node[];
+    networkNodes: NodeUrl[];
     currentNodeUrl: string;
 
     constructor() {

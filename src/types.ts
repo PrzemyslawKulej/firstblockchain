@@ -18,3 +18,4 @@ export interface Node {
     node: string;
 }
 
+export type NodeUrl = string;

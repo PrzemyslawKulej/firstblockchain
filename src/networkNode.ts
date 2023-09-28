@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import {Blockchain} from "./blockchain";
 import * as crypto from "crypto";
 import  axios from 'axios';
+import {NodeUrl} from "./types";
 
 const app = express();
 const PORT = process.argv[2];
@@ -16,12 +17,20 @@ app.use(bodyParser.urlencoded({ extended:false }));
 
 //I can use here express.json() that is build in newer versions of Express
 
+//Function validation if node is already in networkNodes
+const addNode = (newNodeUrl: NodeUrl) => {
+    if (!bitcoin.networkNodes.includes(newNodeUrl) && bitcoin.currentNodeUrl !== newNodeUrl) {
+        bitcoin.networkNodes.push(newNodeUrl);
+    }
+}
 
 app.get('/blockchain', function (req: Request, res: Response) {
     res.send(bitcoin);
 
 });
 app.post('/transaction', function (req: Request, res: Response) {
+    //Destructuring for clarity's sake
+    const { amount, sender, recipient } = req.body;
     const blockIndex = bitcoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
     res.json({ note: `Transaction will be added in block ${blockIndex}.`});
 
@@ -54,11 +63,9 @@ app.get('/mine', function (req: Request, res: Response) {
 //Register a node and broadcast it to the network
 
 app.post('/register-and-broadcast-node', async (req: Request, res: Response) => {
-   const  newNodeUrl = req.body.newNodeUrl;
+   const  newNodeUrl: NodeUrl = req.body.newNodeUrl;
 
-   if (!bitcoin.networkNodes.includes(newNodeUrl))  {
-       bitcoin.networkNodes.push(newNodeUrl)
-   }
+   addNode(newNodeUrl);
 
    const regNodesPromises = bitcoin.networkNodes.map(networkNodeUrl => {
        return axios.post(`${networkNodeUrl}/register-node`, {
@@ -83,12 +90,10 @@ app.post('/register-and-broadcast-node', async (req: Request, res: Response) => 
 
 //Register a node with the network
 app.post('/register-node', function (req: Request, res: Response) {
-    const newNodeUrl = req.body.newNodeUrl;
-    if (!bitcoin.networkNodes.includes(newNodeUrl)  && bitcoin.currentNodeUrl !== newNodeUrl) {
-        bitcoin.networkNodes.push(newNodeUrl);
-    };
+    const newNodeUrl: NodeUrl = req.body.newNodeUrl;
+    addNode(newNodeUrl);
 
-    res.json({ message: 'New node registered successfully with node.' });
+    res.json({ message: 'New node registered successfully.' });
 
 
 });
@@ -96,6 +101,9 @@ app.post('/register-node', function (req: Request, res: Response) {
 
 //Register multiple nodes at once
 app.post('/register-nodes-bulk', function (req: Request, res: Response) {
+    const allNetworkNodes: NodeUrl[] = req.body.allNetworkNodes;
+    allNetworkNodes.forEach(addNode);
+    res.json({ message: 'Bulk registration successful' });
 
 });
 
@@ -104,4 +112,3 @@ app.listen(PORT, () => {
     console.log(`Server is live on this port ${PORT}`);
 });
 
-//comman
