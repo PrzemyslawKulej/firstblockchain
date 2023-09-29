@@ -41,18 +41,23 @@ class Blockchain {
     }
 
 //Method that create new transaction
+    // Redundant variable newTransaction -- CODE REVIEW
 
-    createNewTransaction(amount: number, sender: string, recipient: string): number {
+    createNewTransaction(amount: number, sender: string, recipient: string): Transaction {
         const newTransaction: Transaction = {
             amount,
             sender,
-            recipient
+            recipient,
+            transactionId: crypto.randomUUID().split('-').join('')
         }
 
-        this.pendingTransactions.push(newTransaction);
+        return newTransaction;
 
-        return this.getLastBlock().index + 1;
+    }
 
+    addTransactionToPendingTransactions(transactionObj) {
+        this.pendingTransactions.push(transactionObj)
+        return this.getLastBlock()['index'] + 1;
     }
 
     //Hashing method

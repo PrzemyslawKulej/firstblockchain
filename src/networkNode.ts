@@ -29,12 +29,34 @@ app.get('/blockchain', function (req: Request, res: Response) {
 
 });
 app.post('/transaction', function (req: Request, res: Response) {
-    //Destructuring for clarity's sake
+    // Destructuring for clarity's sake  CODE REVIEW
     const { amount, sender, recipient } = req.body;
-    const blockIndex = bitcoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
-    res.json({ note: `Transaction will be added in block ${blockIndex}.`});
+    const newTransaction = { amount, sender, recipient };
+    const blockIndex = bitcoin.addTransactionToPendingTransactions(newTransaction);
+    res.json({ message: `Transaction will be added in block ${blockIndex}`});
 
 });
+
+app.post('/transaction/broadcast', async (req: Request, res: Response) => {
+    const newTransaction = bitcoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+    bitcoin.addTransactionToPendingTransactions(newTransaction);
+
+    const requestOptions = bitcoin.networkNodes.map(networkNodeUrl => {
+        return axios.post(`${networkNodeUrl}/transaction`, {newTransaction});
+
+    });
+
+    try {
+            const requestPromises = await Promise.all(requestOptions)
+            res.json({ message: 'Transaction registered successfull'});
+
+    } catch (error) {
+        res.status(500).json({error: 'Error occured during registrating transaction.'});
+    }
+});
+
+
+
 app.get('/mine', function (req: Request, res: Response) {
     const lastBlock = bitcoin.getLastBlock();
     const previousBlockHash = lastBlock['hash'];
@@ -67,15 +89,17 @@ app.post('/register-and-broadcast-node', async (req: Request, res: Response) => 
 
    addNode(newNodeUrl);
 
+   // Czy można usunąć jedno newNodeUrl? CODE REVIEW
+
    const regNodesPromises = bitcoin.networkNodes.map(networkNodeUrl => {
        return axios.post(`${networkNodeUrl}/register-node`, {
-           newNodeUrl: networkNodeUrl
+           newNodeUrl: newNodeUrl
        });
    });
 
    try {
        const results = await Promise.all(regNodesPromises);
-       res.json({ message: 'All nodes registered' });
+       res.json({ message: 'Nodes registered successfully' });
        await axios.post(`${newNodeUrl}/register-nodes-bulk`, {
            allNetworkNodes: [ ...bitcoin.networkNodes, bitcoin.currentNodeUrl ]
        });
