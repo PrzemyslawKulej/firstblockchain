@@ -41,23 +41,24 @@ app.post('/transaction/broadcast', async (req: Request, res: Response) => {
     const newTransaction = bitcoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
     bitcoin.addTransactionToPendingTransactions(newTransaction);
 
+    const requestPromises: any = [];
     const requestOptions = bitcoin.networkNodes.map(networkNodeUrl => {
-        return axios.post(`${networkNodeUrl}/transaction`, {newTransaction});
+        return axios.post(`${networkNodeUrl}/transaction`, newTransaction);
 
     });
 
     try {
-            const requestPromises = await Promise.all(requestOptions)
+            await Promise.all(requestPromises)
             res.json({ message: 'Transaction registered successfull'});
 
     } catch (error) {
-        res.status(500).json({error: 'Error occured during registrating transaction.'});
+        res.status(500).json({ error: 'Error occured during registrating transaction.' });
     }
 });
 
 
 
-app.get('/mine', function (req: Request, res: Response) {
+app.get('/mine', async (req: Request, res: Response) => {
     const lastBlock = bitcoin.getLastBlock();
     const previousBlockHash = lastBlock['hash'];
 
@@ -69,16 +70,36 @@ app.get('/mine', function (req: Request, res: Response) {
     const nonce = bitcoin.proofOfWork(previousBlockHash, currentBlockData);
     const blockHash = bitcoin.hashBlock(previousBlockHash, currentBlockData, nonce);
 
-    //Mined block reward 5btc
-
-    bitcoin.createNewTransaction(5, "00", nodeAddress);
 
     const newBlock = bitcoin.createNewBlock(nonce, previousBlockHash, blockHash);
 
-    res.json({
-        note: "New block mined successfully",
-        block: newBlock
+
+    const blockPromises = bitcoin.networkNodes.map(networkNodeUrl => {
+        return axios.post(`${networkNodeUrl}/recieve-new-block`, newBlock)
+
     })
+
+    try {
+       await Promise.all(blockPromises);
+
+        //Mined block reward 5btc
+       const minerRewardTransaction = bitcoin.createNewTransaction(5, "00", nodeAddress);
+
+       const txPromises = bitcoin.networkNodes.map(networkNodeUrl => {
+           axios.post(`${networkNodeUrl}/transaction`, {newTransaction: minerRewardTransaction});
+       });
+
+       await Promise.all(txPromises);
+
+        res.json({
+            note: "New block mined & braodcast successfully, miner reward transaction created & broadcasted",
+            block: newBlock
+        });
+
+    } catch (error) {
+       res.status(500).json({ message: 'Error occured' })
+    }
+
 
 });
 

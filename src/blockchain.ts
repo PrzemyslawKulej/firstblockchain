@@ -55,7 +55,7 @@ class Blockchain {
 
     }
 
-    addTransactionToPendingTransactions(transactionObj) {
+    addTransactionToPendingTransactions(transactionObj: any) {
         this.pendingTransactions.push(transactionObj)
         return this.getLastBlock()['index'] + 1;
     }
