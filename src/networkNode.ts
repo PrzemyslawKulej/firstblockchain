@@ -29,30 +29,29 @@ app.get('/blockchain', function (req: Request, res: Response) {
 
 });
 app.post('/transaction', function (req: Request, res: Response) {
-    // Destructuring for clarity's sake  CODE REVIEW
-    const { amount, sender, recipient } = req.body;
-    const newTransaction = { amount, sender, recipient };
+    const newTransaction = req.body;
     const blockIndex = bitcoin.addTransactionToPendingTransactions(newTransaction);
     res.json({ message: `Transaction will be added in block ${blockIndex}`});
 
 });
 
 app.post('/transaction/broadcast', async (req: Request, res: Response) => {
+    console.log(bitcoin.networkNodes);
     const newTransaction = bitcoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
     bitcoin.addTransactionToPendingTransactions(newTransaction);
 
-    const requestPromises: any = [];
+
     const requestOptions = bitcoin.networkNodes.map(networkNodeUrl => {
         return axios.post(`${networkNodeUrl}/transaction`, newTransaction);
 
     });
 
     try {
-            await Promise.all(requestPromises)
-            res.json({ message: 'Transaction registered successfull'});
+            await Promise.all(requestOptions)
+            res.json({ message: 'Transaction registered successfully'});
 
     } catch (error) {
-        res.status(500).json({ error: 'Error occured during registrating transaction.' });
+        res.status(500).json({ error: 'Error occurred during registrating transaction.' });
     }
 });
 
@@ -70,12 +69,12 @@ app.get('/mine', async (req: Request, res: Response) => {
     const nonce = bitcoin.proofOfWork(previousBlockHash, currentBlockData);
     const blockHash = bitcoin.hashBlock(previousBlockHash, currentBlockData, nonce);
 
-
     const newBlock = bitcoin.createNewBlock(nonce, previousBlockHash, blockHash);
 
-
     const blockPromises = bitcoin.networkNodes.map(networkNodeUrl => {
-        return axios.post(`${networkNodeUrl}/recieve-new-block`, newBlock)
+        return axios.post(`${networkNodeUrl}/receive-new-block`,{
+            newBlock: newBlock
+        })
 
     })
 
@@ -84,24 +83,54 @@ app.get('/mine', async (req: Request, res: Response) => {
 
         //Mined block reward 5btc
        const minerRewardTransaction = bitcoin.createNewTransaction(5, "00", nodeAddress);
+       console.log(minerRewardTransaction)
 
        const txPromises = bitcoin.networkNodes.map(networkNodeUrl => {
-           axios.post(`${networkNodeUrl}/transaction`, {newTransaction: minerRewardTransaction});
+           console.log(`Sending transaction to: ${networkNodeUrl}`);
+           return axios.post(`${networkNodeUrl}/transaction`,{
+               newTransaction: minerRewardTransaction
+           });
        });
 
        await Promise.all(txPromises);
+        console.log("Miner reward transaction broadcasted to all nodes");
 
         res.json({
-            note: "New block mined & braodcast successfully, miner reward transaction created & broadcasted",
+            note: "New block mined & broadcast successfully, miner reward transaction created & broadcast",
             block: newBlock
         });
 
     } catch (error) {
-       res.status(500).json({ message: 'Error occured' })
+        console.error("Error occurred during mining:", error);
+        res.status(500).json({ message: 'Error occurred' })
     }
 
 
 });
+
+app.post('/receive-new-block', function(req: Request, res: Response) {
+    const newBlock = req.body.newBlock;
+    const lastBlock = bitcoin.getLastBlock();
+    //Checking the hashes compatibility/block legitimation
+    const correctHash = lastBlock.hash === newBlock.previousBlockHash;
+    const correctIndex = lastBlock['index'] + 1 === newBlock['index'];
+
+    if (correctHash && correctIndex) {
+        bitcoin.chain.push(newBlock);
+        //Clearing out pending transactions
+        bitcoin.pendingTransactions = [];
+        res.json({
+            message: 'New block received and accepted',
+            newBlock
+        })
+    } else {
+        res.json({
+            message: 'New block rejected',
+            newBlock
+        })
+    }
+});
+
 
 //Register a node and broadcast it to the network
 
@@ -127,7 +156,7 @@ app.post('/register-and-broadcast-node', async (req: Request, res: Response) => 
 
 
    } catch (error) {
-       res.status(500).json({ error: 'Error occured during registration.'});
+       res.status(500).json({ error: 'Error occurred during registration.'});
    }
 
 
