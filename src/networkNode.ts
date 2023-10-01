@@ -80,6 +80,7 @@ app.get('/mine', async (req: Request, res: Response) => {
 
     try {
        await Promise.all(blockPromises);
+       console.log(blockPromises)
 
         //Mined block reward 5btc
        const minerRewardTransaction = bitcoin.createNewTransaction(5, "00", nodeAddress);
