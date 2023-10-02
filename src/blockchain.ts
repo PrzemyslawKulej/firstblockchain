@@ -83,7 +83,27 @@ class Blockchain {
 
     }
 
+    //Checking if blockchain is valid by
+    chainIsValid(blockchain: any) {
+        let validChain = true;
+
+        for (let i = 1; i < blockchain; i++) {
+            const currentBLock = blockchain[i];
+            const prevBlock = blockchain[i - 1];
+            const blockHash = this.hashBlock(prevBlock['hash'], {transactions: currentBLock['transactions'], index: currentBLock['index']}, currentBLock['nonce'] );
+            if (blockHash.substring(0, 4) !== '0000') {
+                validChain = false;
+            }
+            if (currentBLock['previousBlockHash'] !== prevBlock['hash']) {
+                validChain = false;
+            } //chain is not valid
+        }
+        return validChain;
+
+    };
+
 }
+
 
 export { Blockchain };
 

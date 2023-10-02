@@ -84,7 +84,8 @@ app.get('/mine', async (req: Request, res: Response) => {
 
         //Mined block reward 5btc
        const minerRewardTransaction = bitcoin.createNewTransaction(5, "00", nodeAddress);
-       console.log(minerRewardTransaction)
+
+       bitcoin.addTransactionToPendingTransactions(minerRewardTransaction);
 
        const txPromises = bitcoin.networkNodes.map(networkNodeUrl => {
            console.log(`Sending transaction to: ${networkNodeUrl}`);
