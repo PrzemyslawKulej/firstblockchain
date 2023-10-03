@@ -98,6 +98,13 @@ class Blockchain {
                 validChain = false;
             } //chain is not valid
         }
+        //Checking if genesis block is valid
+        const genesisBlock = blockchain['0'];
+        const correctNonce = genesisBlock['nonce'] === 100;
+        const correctPreviousBlockHash = genesisBlock['previousBlockHash'] === '0';
+        const correctHash = genesisBlock['hash'] === '0';
+        const correctTransactions = genesisBlock['transactions'].length === 0;
+
         return validChain;
 
     };
