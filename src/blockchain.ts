@@ -111,6 +111,7 @@ class Blockchain {
 
 }
 
+// Exporting blockchain
 
 export { Blockchain };
 
