@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import {Blockchain} from "./blockchain";
 import * as crypto from "crypto";
 import  axios from 'axios';
-import {NodeUrl} from "./types";
+import {NodeUrl, Transaction} from "./types";
 
 const app = express();
 const PORT = process.argv[2];
@@ -83,7 +83,7 @@ app.get('/mine', async (req: Request, res: Response) => {
        console.log(blockPromises)
 
         //Mined block reward 5btc
-       const minerRewardTransaction = bitcoin.createNewTransaction(5, "00", nodeAddress);
+       const minerRewardTransaction: Transaction = bitcoin.createNewTransaction ("5", "00", nodeAddress);
 
        bitcoin.addTransactionToPendingTransactions(minerRewardTransaction);
 
@@ -138,6 +138,7 @@ app.post('/receive-new-block', function(req: Request, res: Response) {
 
 app.post('/register-and-broadcast-node', async (req: Request, res: Response) => {
    const  newNodeUrl: NodeUrl = req.body.newNodeUrl;
+   console.log(newNodeUrl);
 
    addNode(newNodeUrl);
 
@@ -187,4 +188,5 @@ app.post('/register-nodes-bulk', function (req: Request, res: Response) {
 app.listen(PORT, () => {
     console.log(`Server is live on this port ${PORT}`);
 });
-
+//end
+// make dssd
