@@ -64,8 +64,8 @@ class Blockchain {
     //Hashing method
 
     hashBlock(previousBlockHash: string, currentBlockData: any, nonce: number): string {
-        const dataAsSting = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
-        const hash = sha256(dataAsSting);
+        const dataAsString = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
+        const hash = sha256(dataAsString);
         return hash;
 
     }
@@ -87,7 +87,7 @@ class Blockchain {
     chainIsValid(blockchain: any) {
         let validChain = true;
 
-        for (let i = 1; i < blockchain; i++) {
+        for (let i = 1; i < blockchain.length; i++) {
             const currentBLock = blockchain[i];
             const prevBlock = blockchain[i - 1];
             const blockHash = this.hashBlock(prevBlock['hash'], {transactions: currentBLock['transactions'], index: currentBLock['index']}, currentBLock['nonce'] );
@@ -112,14 +112,8 @@ class Blockchain {
 }
 
 // Exporting blockchain
-//cdd
+
 
 export { Blockchain };
 
-//ccdd
-//cdd
-//cdd
-//cdd
-//cdd
-//cdd
 
