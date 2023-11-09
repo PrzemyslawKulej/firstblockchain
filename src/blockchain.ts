@@ -1,7 +1,8 @@
 import {Block, NodeUrl, Transaction} from './types';
-import sha256 from 'sha256';
+const sha256 = require('sha256');
 const currentNodeUrl = process.argv[3];
 import * as crypto from "crypto";
+
 
 class Blockchain {
     chain: Block[];
@@ -43,7 +44,7 @@ class Blockchain {
 //Method that create new transaction
     // Redundant variable newTransaction -- CODE REVIEW
 
-    createNewTransaction(amount: number, sender: string, recipient: string): Transaction {
+    createNewTransaction(amount: string, sender: string, recipient: string): Transaction {
         const newTransaction: Transaction = {
             amount,
             sender,
@@ -104,6 +105,8 @@ class Blockchain {
         const correctPreviousBlockHash = genesisBlock['previousBlockHash'] === '0';
         const correctHash = genesisBlock['hash'] === '0';
         const correctTransactions = genesisBlock['transactions'].length === 0;
+
+        if (!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransactions) validChain = false;
 
         return validChain;
 

@@ -184,9 +184,59 @@ app.post('/register-nodes-bulk', function (req: Request, res: Response) {
 
 });
 
+app.get('/consensus', async (req: Request, res: Response) => {
+    let requestPromises: Promise<any>[] = bitcoin.networkNodes.map(networkNodeUrl => {
+        return axios.get<Blockchain>(networkNodeUrl + '/blockchain');
+    });
+
+    try {
+        const blockchains = await Promise.all(requestPromises);
+
+        let maxChainLength = bitcoin.chain.length;
+        let newLongestChain: Block[] | null = null;
+        let newPendingTransactions: Transaction[] | null = null;
+
+        blockchains.forEach(response => {
+            const blockchain = response.data;
+            if (blockchain.chain.length > maxChainLength) {
+                maxChainLength = blockchain.chain.length;
+                newLongestChain = blockchain.chain;
+                newPendingTransactions = blockchain.pendingTransactions;
+            }
+        });
+
+        if (!newLongestChain || (newLongestChain && !bitcoin.chainIsValid(newLongestChain))) {
+            res.json({
+                message: 'Obecny łańcuch nie został zastąpiony.',
+                chain: bitcoin.chain
+            });
+        } else {
+            bitcoin.chain = newLongestChain;
+            bitcoin.pendingTransactions = newPendingTransactions;
+            res.json({
+                message: 'Ten łańcuch został zastąpiony.',
+                chain: bitcoin.chain
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: 'Błąd podczas uzyskiwania konsensusu.',
+            error: error.message
+        });
+    }
+});
+
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
+
+
+
+
 
 app.listen(PORT, () => {
     console.log(`Server is live on this port ${PORT}`);
 });
 //end
-// make dssd
+
