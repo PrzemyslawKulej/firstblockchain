@@ -6,7 +6,7 @@ import * as crypto from "crypto";
 
 class Blockchain {
     chain: Block[];
-    pendingTransactions: Transaction[];
+    pendingTransactions: [] | null;
     networkNodes: NodeUrl[];
     currentNodeUrl: string;
 
@@ -58,8 +58,9 @@ class Blockchain {
 
     addTransactionToPendingTransactions(transactionObj: any) {
         console.log("Adding transaction to pending transactions:", transactionObj);
+        // @ts-ignore
         this.pendingTransactions.push(transactionObj)
-        return this.getLastBlock()['index'] + 1;
+        return (this.getLastBlock() || { index: 0 })['index'] + 1;
     }
 
     //Hashing method

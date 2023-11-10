@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import {Blockchain} from "./blockchain";
 import * as crypto from "crypto";
 import  axios from 'axios';
-import {NodeUrl, Transaction} from "./types";
+import {Block, NodeUrl, Transaction} from "./types";
 
 const app = express();
 const PORT = process.argv[2];
@@ -219,24 +219,28 @@ app.get('/consensus', async (req: Request, res: Response) => {
             });
         }
     } catch (error) {
-        res.status(500).json({
-            message: 'Błąd podczas uzyskiwania konsensusu.',
-            error: error.message
-        });
+        if (error instanceof Error) {
+            res.status(500).json({
+                message: 'Błąd podczas uzyskiwania konsensusu.',
+                error: error.message
+            });
+        } else {
+            res.status(500).json({
+                message: "Error during getting consensus",
+                error: "Unknown error"
+            });
+        }
     }
-});
 
-const port = 3000;
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
-
+    const port = 3000;
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
 
 
-
-
-app.listen(PORT, () => {
-    console.log(`Server is live on this port ${PORT}`);
+    app.listen(PORT, () => {
+        console.log(`Server is live on this port ${PORT}`);
+    });
 });
 //end
 
