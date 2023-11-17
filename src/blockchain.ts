@@ -181,31 +181,35 @@ class Blockchain {
   getAddressData(address: string) {
     try {
       if (!address) {
-        return new Error("No address provided");
+        throw new Error("No address provided");
       }
 
       const addressTransactions = [];
       for (const block of this.chain) {
-        block.transactions?.find(
-          (transaction) =>
-            transaction.sender === address || transaction.recipient === address,
-        ) ?? null;
-        addressTransactions.push(transaction);
+        const transaction =
+          block.transactions?.find(
+            (t) => t.sender === address || t.recipient === address,
+          ) ?? null;
+
+        if (transaction) {
+          addressTransactions.push(transaction);
+        }
       }
+
+      let balance: number = 0;
+      for (const transaction of addressTransactions) {
+        const amount = parseFloat(transaction.amount);
+        if (transaction.recipient === address) balance += amount;
+        else if (transaction.sender === address) balance -= amount;
+      }
+
+      return {
+        addressTransactions,
+        addressBalance: balance,
+      };
     } catch (error) {
-      {
-        console.log(Error);
-      }
+      console.log(error);
     }
-    let balance = 0;
-    adressTransactions.forEach((transaction) => {
-      if (transaction.recipient === address) balance += transaction.amount;
-      else if (transaction.sender === address) balance -= transaction.amount;
-    });
-    return {
-      addressTransactions,
-      addressBalance: balance,
-    };
   }
 }
 // Exporting blockchain
