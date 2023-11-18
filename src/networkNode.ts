@@ -259,7 +259,11 @@ app.get("/transaction/:transactionId", (req: Request, res: Response) => {
   });
 });
 
-app.get("/address/:address"), (req: Request, res: Response) => {};
+app.get("/address/:address", (req: Request, res: Response) => {
+  const address = req.params.address;
+  const addressData = bitcoin.getAddressData(address);
+  res.json({ addressData });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is live on this port ${PORT}`);

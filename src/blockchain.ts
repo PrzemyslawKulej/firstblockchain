@@ -184,17 +184,13 @@ class Blockchain {
         throw new Error("No address provided");
       }
 
-      const addressTransactions = [];
-      for (const block of this.chain) {
-        const transaction =
-          block.transactions?.find(
+      // Używamy flatMap do stworzenia płaskiej tablicy transakcji
+      const addressTransactions = this.chain.flatMap(
+        (block) =>
+          block.transactions?.filter(
             (t) => t.sender === address || t.recipient === address,
-          ) ?? null;
-
-        if (transaction) {
-          addressTransactions.push(transaction);
-        }
-      }
+          ) ?? [],
+      );
 
       let balance: number = 0;
       for (const transaction of addressTransactions) {
