@@ -3,6 +3,7 @@ import { Blockchain } from "./blockchain";
 import * as crypto from "crypto";
 import axios from "axios";
 import { Block, NodeUrl, Transaction } from "./types";
+import * as path from "path";
 
 const app = express();
 const PORT = process.argv[2];
@@ -263,6 +264,11 @@ app.get("/address/:address", (req: Request, res: Response) => {
   const address = req.params.address;
   const addressData = bitcoin.getAddressData(address);
   res.json({ addressData });
+});
+
+app.get("/block-explorer", (req: Request, res: Response) => {
+  const absolutePath = path.resolve("dist", "block-explorer", "index.html");
+  res.sendFile(absolutePath);
 });
 
 app.listen(PORT, () => {
