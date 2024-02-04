@@ -1,0 +1,24 @@
+{
+    "name": "@types/sha256",
+    "version": "0.2.0",
+    "description": "TypeScript definitions for sha256",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Nathan Hardy",
+            "url": "https://github.com/nhardy",
+            "githubUsername": "nhardy"
+        }
+    ],
+    "main": "",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "d9cf35c8639fa83d9d827c2ea2f166f6fa6547a16c4619834f5850563beab8ee",
+    "typeScriptVersion": "2.0"
+}
