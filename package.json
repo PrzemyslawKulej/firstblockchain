@@ -10,7 +10,7 @@
     "node_3": "ts-node-dev --respawn --prefer-ts src/networkNode.ts 3003 http://localhost:3003",
     "node_4": "ts-node-dev --respawn --prefer-ts src/networkNode.ts 3004 http://localhost:3004",
     "node_5": "ts-node-dev --respawn --prefer-ts src/networkNode.ts 3005 http://localhost:3005",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "author": "",
   "license": "ISC",
@@ -24,10 +24,13 @@
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.17",
     "@types/sha256": "^0.2.0",
+    "axios-mock-adapter": "^1.22.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
+    "supertest": "^6.3.4",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^1.2.2"
   }
 }
